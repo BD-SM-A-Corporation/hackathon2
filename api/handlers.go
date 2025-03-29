@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,19 +17,22 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Hash password
+	log.Printf("Registering user with email: %s", user.Email)
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
+		log.Printf("Failed to hash password: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
 	user.Password = hashedPassword
 
 	if err := DB.Create(&user).Error; err != nil {
+		log.Printf("Failed to create user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
 
+	log.Printf("User registered successfully with ID: %d", user.ID)
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
 
@@ -38,28 +43,49 @@ func Login(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&credentials); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 		return
 	}
 
+	log.Printf("Login attempt for email: %s", credentials.Email)
 	var user User
 	if err := DB.Where("email = ?", credentials.Email).First(&user).Error; err != nil {
+		log.Printf("User not found for email: %s", credentials.Email)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
-	if !CheckPassword(credentials.Password, user.Password) {
+	if user.Password == "" {
+		log.Printf("Empty password hash for user: %d", user.ID)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	log.Printf("Verifying password for user: %d", user.ID)
+	isValid := CheckPassword(credentials.Password, user.Password)
+
+	if !isValid {
+		log.Printf("Password verification failed for user: %d", user.ID)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
 	token, err := GenerateToken(user.ID)
 	if err != nil {
+		log.Printf("Token generation failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	log.Printf("Login successful for user: %d", user.ID)
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"user": gin.H{
+			"id":    user.ID,
+			"email": user.Email,
+			"name":  user.Name,
+		},
+	})
 }
 
 func GetUserProfile(c *gin.Context) {

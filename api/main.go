@@ -8,10 +8,8 @@ import (
 )
 
 func main() {
-	// Initialize database
 	InitDB()
 
-	// Set up Gin router
 	router := gin.Default()
 
 	// Public routes

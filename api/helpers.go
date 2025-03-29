@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -11,13 +12,26 @@ import (
 )
 
 func HashPassword(password string) (string, error) {
+	log.Printf("Hashing password (length: %d)", len(password))
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
+	if err != nil {
+		log.Printf("Error hashing password: %v", err)
+		return "", err
+	}
+	log.Printf("Password hashed successfully")
+	return string(bytes), nil
 }
 
 func CheckPassword(password, hash string) bool {
+	log.Printf("Checking password (length: %d) against hash (length: %d)", len(password), len(hash))
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+	if err != nil {
+		log.Printf("Password verification failed: %v", err)
+		return false
+	}
+
+	log.Printf("Password verification successful")
+	return true
 }
 
 func GenerateToken(userID uint) (string, error) {
