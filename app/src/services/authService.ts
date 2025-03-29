@@ -20,8 +20,12 @@ interface AuthResponse {
   };
 }
 
+interface RegisterResponse {
+  message: string;
+}
+
 export const authService = {
-  register: async (data: RegisterData): Promise<AuthResponse> => {
+  register: async (data: RegisterData): Promise<RegisterResponse> => {
     const response = await api.post('/register', data);
     return response.data;
   },

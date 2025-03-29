@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,27 +6,48 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import { PhenologyEntry } from '../types';
+import { Record } from '../types/models';
+import { AddRecordButton } from '../components/AddRecordButton';
+import { recordService } from '../services/recordService';
 
 const PhenologyScreen = () => {
-  const [entries, setEntries] = useState<PhenologyEntry[]>([]);
+  const [entries, setEntries] = useState<Record[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [bedId] = useState(1); // TODO: Get this from navigation params or context
 
-  const renderEntryItem = ({ item }: { item: PhenologyEntry }) => (
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const records = await recordService.getBedRecords(bedId);
+      setEntries(records);
+    } catch (error) {
+      console.error('Failed to fetch records:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, [bedId]);
+
+  const renderEntryItem = ({ item }: { item: Record }) => (
     <TouchableOpacity style={styles.entryItem}>
       <View style={styles.entryHeader}>
         <Text style={styles.entryDate}>
-          {item.date.toLocaleDateString()}
+          {new Date(item.date).toLocaleDateString()}
         </Text>
         <Text style={styles.entryHeight}>
           Высота: {item.height} см
         </Text>
       </View>
       
-      {item.photos.length > 0 && (
+      {item.photo_url && (
         <View style={styles.photoContainer}>
           <Image
-            source={{ uri: item.photos[0] }}
+            source={{ uri: item.photo_url }}
             style={styles.photo}
             resizeMode="cover"
           />
@@ -44,19 +65,28 @@ const PhenologyScreen = () => {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         data={entries}
         renderItem={renderEntryItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Нет записей в журнале</Text>
         }
       />
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+ Новая запись</Text>
-      </TouchableOpacity>
+      <AddRecordButton 
+        bedId={bedId} 
+        onSuccess={fetchRecords}
+      />
     </View>
   );
 };
@@ -64,6 +94,12 @@ const PhenologyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
   },
   entryItem: {
@@ -111,24 +147,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: '#666',
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#4CAF50',
-    padding: 16,
-    borderRadius: 30,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 

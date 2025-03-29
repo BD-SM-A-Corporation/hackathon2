@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
@@ -34,7 +35,18 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     try {
       setLoading(true);
       await register(name, email, password);
+      Alert.alert(
+        'Success',
+        'Registration successful! Please login.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ],
+      );
     } catch (error) {
+      console.error(error);
       Alert.alert('Error', 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -71,9 +83,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
         onPress={handleRegister}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>
-          {loading ? 'Loading...' : 'Register'}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Register</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.linkButton}
@@ -112,6 +126,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
+    height: 50,
+    justifyContent: 'center',
   },
   buttonDisabled: {
     backgroundColor: '#ccc',

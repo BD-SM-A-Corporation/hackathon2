@@ -55,11 +55,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await authService.register({ name, email, password });
-      await AsyncStorage.setItem('auth_token', response.token);
-      await AsyncStorage.setItem('user_data', JSON.stringify(response.user));
-      setUser(response.user);
-      setIsAuthenticated(true);
+      await authService.register({ name, email, password });
+      // Registration successful, but we don't set auth state here
+      // User needs to login after registration
     } catch (error) {
       throw error;
     }

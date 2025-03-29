@@ -1,7 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'http://localhost:3000/api/v1';
+import { API_URL } from '../config/api';
 
 interface Bed {
   id: string;
