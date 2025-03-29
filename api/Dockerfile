@@ -1,11 +1,24 @@
-FROM golang:1.21-alpine
+FROM golang:1.24.1-alpine
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache gcc musl-dev
+
+# Copy go mod and sum files
+COPY go.mod ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the source code
 COPY . .
 
-RUN go build -o api main.go
+# Build the application
+RUN go build -o main .
 
+# Expose port 8080
 EXPOSE 8080
 
-CMD ["./api"]
+# Run the application
+CMD ["./main"]
