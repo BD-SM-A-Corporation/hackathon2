@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface LoginScreenProps {
   navigation: any;
@@ -27,9 +28,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     try {
       setLoading(true);
+      const response = await fetch(`${BASE_URL}/api/v1/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      await AsyncStorage.setItem('userToken', data.token);
       await login(email, password);
+      navigation.navigate('Main');
     } catch (error) {
-      Alert.alert('Error', 'Invalid email or password');
+      Alert.alert('Ошибка', 'Не удалось войти');
     } finally {
       setLoading(false);
     }

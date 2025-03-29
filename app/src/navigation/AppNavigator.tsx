@@ -3,6 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Import screens
 import {
@@ -19,15 +22,24 @@ import { useAuth } from '../context/AuthContext';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+type ProfileStackParamList = {
+  Profile: undefined;
+  Analytics: undefined;
+  Notifications: undefined;
+};
+
 const BatchesStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name="BatchesList" component={BatchesScreen} options={{ title: 'Мои грядки' }} />
-  </Stack.Navigator>
-);
-
-const PhenologyStack = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="PhenologyList" component={PhenologyScreen} options={{ title: 'Фенологический журнал' }} />
+    <Stack.Screen 
+      name="BatchesList" 
+      component={BatchesScreen} 
+      options={{ title: 'Мои грядки' }}
+    />
+    <Stack.Screen 
+      name="Phenology" 
+      component={PhenologyScreen} 
+      options={{ title: 'Фенологический журнал' }}
+    />
   </Stack.Navigator>
 );
 
@@ -49,11 +61,47 @@ const NotificationsStack = () => (
   </Stack.Navigator>
 );
 
-const ProfileStack = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Профиль' }} />
-  </Stack.Navigator>
-);
+const ProfileStack = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{ 
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity 
+              style={{ marginLeft: 16, padding: 8 }}
+              onPress={() => navigation.navigate('Analytics')}
+            >
+              <Icon name="chart-line" size={24} color="#4CAF50" />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity 
+              style={{ marginRight: 16, padding: 8 }}
+              onPress={() => navigation.navigate('Notifications')}
+            >
+              <Icon name="bell" size={24} color="#4CAF50" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen 
+        name="Analytics" 
+        component={AnalyticsScreen} 
+        options={{ title: 'Аналитика' }}
+      />
+      <Stack.Screen 
+        name="Notifications" 
+        component={NotificationsScreen} 
+        options={{ title: 'Уведомления' }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const MainNavigator = () => (
   <Tab.Navigator
@@ -72,38 +120,11 @@ const MainNavigator = () => (
       }}
     />
     <Tab.Screen
-      name="Phenology"
-      component={PhenologyStack}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="notebook" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Analytics"
-      component={AnalyticsStack}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="chart-line" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tab.Screen
       name="Library"
       component={LibraryStack}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Icon name="book-open-variant" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Notifications"
-      component={NotificationsStack}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="bell" size={size} color={color} />
         ),
       }}
     />

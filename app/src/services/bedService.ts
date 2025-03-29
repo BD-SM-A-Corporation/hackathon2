@@ -1,4 +1,4 @@
-import api from '../config/api';
+import { api } from './api';
 import { Bed } from '../types/models';
 
 export interface CreateBedData {

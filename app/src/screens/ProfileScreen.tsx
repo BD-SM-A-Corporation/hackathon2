@@ -11,17 +11,16 @@ import {
 } from 'react-native';
 import { userService } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
-interface ProfileScreenProps {
-  navigation: any;
-}
-
-export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
+export const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user, logout } = useAuth();
+  const navigation = useNavigation();
 
   useEffect(() => {
     loadProfile();
@@ -40,14 +39,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
   };
 
   const handleSave = async () => {
-    if (!name || !email) {
-      Alert.alert('Error', 'Please fill in all fields');
+    if (!name) {
+      Alert.alert('Error', 'Please fill in your name');
       return;
     }
 
     try {
       setSaving(true);
-      await userService.updateProfile({ name, email });
+      await userService.updateProfile({ name });
       Alert.alert('Success', 'Profile updated successfully');
     } catch (error) {
       Alert.alert('Error', 'Failed to update profile');
@@ -174,5 +173,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  headerButton: {
+    marginHorizontal: 16,
+    padding: 8,
   },
 }); 
