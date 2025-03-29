@@ -1,24 +1,33 @@
-FROM golang:1.24.1-alpine
+# Build stage
+FROM golang:1.23 AS builder
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache gcc musl-dev
-
-# Copy go mod and sum files
-COPY go.mod ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy the source code
+# Copy all files
 COPY . .
 
-# Build the application
-RUN go build -o main .
+# Ensure dependencies are installed
+RUN go mod tidy
 
-# Expose port 8080
+# ✅ Force build for Linux (important!)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server microgreens-api
+
+# Final runtime stage
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Copy the built binary
+COPY --from=builder /app/server .
+
+# ✅ Ensure execution permissions
+RUN chmod +x server
+
+# ✅ Install libc (Alpine needs it for Go binaries)
+RUN apk add --no-cache libc6-compat
+
+# Expose the correct port
 EXPOSE 8080
 
-# Run the application
-CMD ["./main"]
+# Run the server
+CMD ["./server"]
