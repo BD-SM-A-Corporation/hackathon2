@@ -11,7 +11,10 @@ import {
   AnalyticsScreen,
   LibraryScreen,
   NotificationsScreen,
+  ProfileScreen,
 } from '../screens';
+import AuthNavigator from './AuthNavigator';
+import { useAuth } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -46,61 +49,92 @@ const NotificationsStack = () => (
   </Stack.Navigator>
 );
 
+const ProfileStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Профиль' }} />
+  </Stack.Navigator>
+);
+
+const MainNavigator = () => (
+  <Tab.Navigator
+    screenOptions={{
+      tabBarActiveTintColor: '#4CAF50',
+      tabBarInactiveTintColor: 'gray',
+    }}
+  >
+    <Tab.Screen
+      name="Batches"
+      component={BatchesStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="sprout" size={size} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Phenology"
+      component={PhenologyStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="notebook" size={size} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Analytics"
+      component={AnalyticsStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="chart-line" size={size} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Library"
+      component={LibraryStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="book-open-variant" size={size} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Notifications"
+      component={NotificationsStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="bell" size={size} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Profile"
+      component={ProfileStack}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="account" size={size} color={color} />
+        ),
+      }}
+    />
+  </Tab.Navigator>
+);
+
 const AppNavigator = () => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return null; // Or a loading screen
+  }
+
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: '#4CAF50',
-          tabBarInactiveTintColor: 'gray',
-        }}
-      >
-        <Tab.Screen
-          name="Batches"
-          component={BatchesStack}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="sprout" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Phenology"
-          component={PhenologyStack}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="notebook" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Analytics"
-          component={AnalyticsStack}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="chart-line" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Library"
-          component={LibraryStack}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="book-open-variant" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Notifications"
-          component={NotificationsStack}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="bell" size={size} color={color} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenticated ? (
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        ) : (
+          <Stack.Screen name="Main" component={MainNavigator} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
