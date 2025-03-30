@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Switch, Button, TextInput } from 'react-native-paper';
+import { Text, Switch, Button } from 'react-native-paper';
 import { notificationService, NotificationSettings } from '../../services/notifications';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function NotificationSettingsScreen() {
   const [settings, setSettings] = useState<NotificationSettings>({
     dailyReminderTime: "10:00",
     enabled: false,
   });
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [tempTime, setTempTime] = useState("10:00");
 
   useEffect(() => {
@@ -44,6 +46,17 @@ export default function NotificationSettingsScreen() {
     }
   };
 
+  const onTimeChange = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(false);
+    if (selectedDate) {
+      const hours = String(selectedDate.getHours()).padStart(2, '0');
+      const minutes = String(selectedDate.getMinutes()).padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+      setTempTime(formattedTime);
+      handleTimeChange();
+    }
+  };
+
   return (
     <BottomSheetView style={styles.contentContainer}>
       <View style={styles.setting}>
@@ -64,23 +77,30 @@ export default function NotificationSettingsScreen() {
             <Text variant="bodyMedium">Set when you want to receive daily reminders</Text>
           </View>
           <View style={styles.timeInputContainer}>
-            <TextInput
-              label="Time (HH:mm)"
-              value={tempTime}
-              onChangeText={setTempTime}
-              keyboardType="numeric"
-              style={styles.timeInput}
-              mode="outlined"
-            />
             <Button
-              mode="contained"
-              onPress={handleTimeChange}
-              style={styles.saveButton}
+              mode="outlined"
+              onPress={() => setShowTimePicker(true)}
+              style={styles.timeButton}
             >
-              Save
+              {tempTime}
             </Button>
           </View>
         </View>
+      )}
+
+      {showTimePicker && (
+        <DateTimePicker
+          testID="timePicker"
+          value={(() => {
+            const [hours, minutes] = tempTime.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hours, minutes, 0);
+            return date;
+          })()}
+          mode="time"
+          is24Hour={true}
+          onChange={onTimeChange}
+        />
       )}
     </BottomSheetView>
   );
@@ -108,12 +128,8 @@ const styles = StyleSheet.create({
   timeInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  timeInput: {
-    width: 120,
-  },
-  saveButton: {
-    marginLeft: 8,
+  timeButton: {
+    minWidth: 120,
   },
 }); 
