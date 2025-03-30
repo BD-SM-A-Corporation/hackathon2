@@ -4,6 +4,7 @@ import { Text, Card, IconButton, Divider } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '../../services/api';
 import { Notification } from '../../services/api';
+import { router } from 'expo-router';
 
 export default function NotificationsScreen() {
   const queryClient = useQueryClient();
@@ -65,12 +66,19 @@ export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.header}>Your notifications</Text>
-        {unreadCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unreadCount}</Text>
-          </View>
-        )}
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerText}>Your notifications</Text>
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount}</Text>
+            </View>
+          )}
+        </View>
+        <IconButton
+          icon="cog"
+          size={24}
+          onPress={() => router.push('/notifications/settings' as any)}
+        />
       </View>
 
       <FlatList
@@ -92,8 +100,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 8,
     backgroundColor: 'white',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerText: {
     color: 'black',
     fontWeight: 'bold',
   },

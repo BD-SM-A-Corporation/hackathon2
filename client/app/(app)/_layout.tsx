@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
+import { Platform } from 'react-native';
 
 export default function AppLayout() {
   const theme = useTheme();
@@ -10,7 +11,7 @@ export default function AppLayout() {
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.outline,
-        headerShown: false
+        headerShown: Platform.OS === 'ios' ? true : false 
       }}
     >
       <Tabs.Screen
@@ -32,7 +33,7 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="notifications/index"
+        name="notifications"
         options={{
           title: '',
           tabBarIcon: ({ color, size }) => (

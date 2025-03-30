@@ -116,7 +116,6 @@ export const user = {
 export const beds = {
   getAll: async () => {
     const response = await api.get<Bed[]>('/api/v1/beds');
-    console.log('API Response:', response);
     return response;
   },
   getById: (id: string) => api.get<Bed>(`/api/v1/beds/${id}`),
