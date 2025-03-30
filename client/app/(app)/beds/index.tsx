@@ -152,7 +152,7 @@ export default function BedsScreen() {
                 onPress={() => setShowSowingDate(true)}
                 style={styles.input}
               >
-                Sowing Date: {new Date(newBed.sowing_date).toLocaleDateString()}
+                <Text>Sowing Date: {new Date(newBed.sowing_date).toLocaleDateString()}</Text>
               </Button>
 
               <Button
@@ -160,7 +160,7 @@ export default function BedsScreen() {
                 onPress={() => setShowHarvestDate(true)}
                 style={styles.input}
               >
-                Expected Harvest: {new Date(newBed.expected_harvest).toLocaleDateString()}
+                <Text>Expected Harvest: {new Date(newBed.expected_harvest).toLocaleDateString()}</Text>
               </Button>
               
               <TextInput
@@ -187,7 +187,7 @@ export default function BedsScreen() {
                 disabled={createMutation.isPending}
                 style={styles.button}
               >
-                Create Bed
+                <Text>Create Bed</Text>
               </Button>
             </BottomSheetView>
           </BottomSheetModal>

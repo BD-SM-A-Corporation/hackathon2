@@ -97,7 +97,7 @@ export default function BedDetailsScreen() {
         <Text variant="titleMedium">{new Date(item.date).toLocaleDateString()}</Text>
         <Text variant="bodyMedium">Height: {item.height}cm</Text>
         <Text variant="bodyMedium">Humidity: {item.humidity}%</Text>
-        <Select>Status: {item.visual_status}</Select>
+        <Select><Text>Status: {item.visual_status}</Text></Select>
         <Text variant="bodyMedium">Notes: {item.notes}</Text>
       </Card.Content>
     </Card>
@@ -252,7 +252,7 @@ export default function BedDetailsScreen() {
                 onPress={() => setShowDate(true)}
                 style={styles.input}
               >
-                Date: {new Date(newRecord.date).toLocaleDateString()}
+                <Text>Date: {new Date(newRecord.date).toLocaleDateString()}</Text>
               </Button>
 
               <Input style={styles.input}>
@@ -317,7 +317,7 @@ export default function BedDetailsScreen() {
                 disabled={createMutation.isPending}
                 style={styles.button}
               >
-                Add Record
+                <Text>Add Record</Text>
               </Button>
             </BottomSheetView>
           </BottomSheetModal>
