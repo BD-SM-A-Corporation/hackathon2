@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, IconButton, Divider } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '../../services/api';
 import { Notification } from '../../services/api';
+import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import NotificationSettingsScreen from './notificationsScreen';
 import { router } from 'expo-router';
 
 export default function NotificationsScreen() {
   const queryClient = useQueryClient();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
   const { data: notificationsList, isLoading } = useQuery({
     queryKey: ['notifications'],
@@ -64,31 +76,54 @@ export default function NotificationsScreen() {
   const unreadCount = notificationsList?.data.filter(n => !n.read).length || 0;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerText}>Your notifications</Text>
-          {unreadCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{unreadCount}</Text>
-            </View>
-          )}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerText}>Your notifications</Text>
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
+            )}
+          </View>
+          <IconButton
+            icon="cog"
+            size={24}
+            onPress={handlePresentModalPress}
+          />
         </View>
-        <IconButton
-          icon="cog"
-          size={24}
-          onPress={() => router.push('/notifications/settings' as any)}
-        />
-      </View>
 
-      <FlatList
-        data={notificationsList?.data}
-        renderItem={renderNotification}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <Divider />}
-      />
-    </View>
+        <FlatList
+          data={notificationsList?.data}
+          renderItem={renderNotification}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <Divider />}
+        />
+
+        <BottomSheetModalProvider>
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={['90%']}
+            index={0}
+            enablePanDownToClose
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                opacity={0.7}
+                pressBehavior="close"
+              />
+            )}
+          >
+            <NotificationSettingsScreen />
+          </BottomSheetModal>
+        </BottomSheetModalProvider>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 

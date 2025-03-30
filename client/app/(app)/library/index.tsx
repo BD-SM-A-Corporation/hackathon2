@@ -103,10 +103,12 @@ export default function LibraryScreen() {
                       Growing Time: {selectedPlant.growingTime} days
                     </Text>
                     <Text variant="bodyMedium">
-                      Temperature Range: {selectedPlant.temperature.min}°C - {selectedPlant.temperature.max}°C
+                      {/* Temperature Range: {selectedPlant.temperature.min}°C - {selectedPlant.temperature.max}°C */}
+                      20
                     </Text>
                     <Text variant="bodyMedium">
-                      Moisture Range: {selectedPlant.moisture.min}% - {selectedPlant.moisture.max}%
+                      {/* Moisture Range: {selectedPlant.moisture.min}% - {selectedPlant.moisture.max}% */}
+                      20
                     </Text>
                   </View>
                 </>

@@ -33,8 +33,6 @@ export default function BedsScreen() {
     queryFn: beds.getAll,
   });
 
-  console.log('Beds data:', bedsList?.data);
-
   const createMutation = useMutation({
     mutationFn: beds.create,
     onSuccess: () => {

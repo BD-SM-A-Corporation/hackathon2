@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Switch, Button, Portal, Modal, TextInput } from 'react-native-paper';
+import { Text, Switch, Button, TextInput } from 'react-native-paper';
 import { notificationService, NotificationSettings } from '../../services/notifications';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 
 export default function NotificationSettingsScreen() {
   const [settings, setSettings] = useState<NotificationSettings>({
     dailyReminderTime: "10:00",
     enabled: false,
   });
-  const [showTimePicker, setShowTimePicker] = useState(false);
   const [tempTime, setTempTime] = useState("10:00");
 
   useEffect(() => {
@@ -42,12 +42,10 @@ export default function NotificationSettingsScreen() {
     if (settings.enabled) {
       await notificationService.scheduleDailyReminder(tempTime);
     }
-    
-    setShowTimePicker(false);
   };
 
   return (
-    <View style={styles.container}>
+    <BottomSheetView style={styles.contentContainer}>
       <View style={styles.setting}>
         <View style={styles.settingInfo}>
           <Text variant="titleMedium">Daily Reminders</Text>
@@ -65,56 +63,33 @@ export default function NotificationSettingsScreen() {
             <Text variant="titleMedium">Reminder Time</Text>
             <Text variant="bodyMedium">Set when you want to receive daily reminders</Text>
           </View>
-          <Button
-            mode="outlined"
-            onPress={() => setShowTimePicker(true)}
-          >
-            {settings.dailyReminderTime}
-          </Button>
-        </View>
-      )}
-
-      <Portal>
-        <Modal
-          visible={showTimePicker}
-          onDismiss={() => setShowTimePicker(false)}
-          contentContainerStyle={styles.modal}
-        >
-          <Text variant="titleLarge" style={styles.modalTitle}>Set Reminder Time</Text>
-          <TextInput
-            label="Time (HH:mm)"
-            value={tempTime}
-            onChangeText={setTempTime}
-            keyboardType="numeric"
-            style={styles.timeInput}
-          />
-          <View style={styles.modalButtons}>
-            <Button
+          <View style={styles.timeInputContainer}>
+            <TextInput
+              label="Time (HH:mm)"
+              value={tempTime}
+              onChangeText={setTempTime}
+              keyboardType="numeric"
+              style={styles.timeInput}
               mode="outlined"
-              onPress={() => setShowTimePicker(false)}
-              style={styles.modalButton}
-            >
-              Cancel
-            </Button>
+            />
             <Button
               mode="contained"
               onPress={handleTimeChange}
-              style={styles.modalButton}
+              style={styles.saveButton}
             >
               Save
             </Button>
           </View>
-        </Modal>
-      </Portal>
-    </View>
+        </View>
+      )}
+    </BottomSheetView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f5f5f5',
   },
   setting: {
     flexDirection: 'row',
@@ -130,24 +105,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16,
   },
-  modal: {
-    backgroundColor: 'white',
-    padding: 20,
-    margin: 20,
-    borderRadius: 8,
-  },
-  modalTitle: {
-    marginBottom: 16,
-    textAlign: 'center',
+  timeInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   timeInput: {
-    marginBottom: 16,
+    width: 120,
   },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
+  saveButton: {
     marginLeft: 8,
   },
 }); 

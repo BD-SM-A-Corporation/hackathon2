@@ -9,6 +9,12 @@ export default function NotificationsLayout() {
           title: 'Notifications',
         }}
       />
+      <Stack.Screen
+        name="notificationsScreen"
+        options={{
+          title: 'Settings',
+        }}
+      />
     </Stack>
   );
 } 
