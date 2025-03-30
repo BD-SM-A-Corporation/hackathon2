@@ -9,7 +9,7 @@ export default function AppLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: 'green',
         tabBarInactiveTintColor: theme.colors.outline,
         headerShown: Platform.OS === 'ios' ? true : false 
       }}

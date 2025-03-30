@@ -208,7 +208,7 @@ export default function BedsScreen() {
                 disabled={createMutation.isPending}
                 style={styles.button}
               >
-                <Text>Create Bed</Text>
+                <Text style={{ color: 'white' }}>Create Bed</Text>
               </Button>
             </BottomSheetView>
           </BottomSheetModal>
@@ -245,6 +245,8 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    backgroundColor: 'green',
+    color: 'white',
   },
   modalTitle: {
     marginBottom: 20,
@@ -256,6 +258,9 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+    width: '100%',
+    color: 'white',
+    backgroundColor: 'green',
   },
   header: {
     padding: 24,

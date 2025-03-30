@@ -98,7 +98,7 @@ export default function ProfileScreen() {
               style={styles.logoutButton}
               icon="logout"
             >
-              Logout
+              <Text style={{ color: 'white' }}>Logout</Text>
             </Button>
           </View>
         </ScrollView>
@@ -179,7 +179,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -10,
     bottom: -10,
-    backgroundColor: '#6200ee',
+    backgroundColor: 'white',
+    borderRadius: 100,
+    borderWidth: 1,
   },
   name: {
     marginTop: 8,
@@ -200,15 +202,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     width: (Dimensions.get('window').width - 80) / 3,
+    backgroundColor: '#96F97B',
   },
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#6200ee',
+    color: 'black',
   },
   statLabel: {
-    color: '#666',
+    color: 'black',
     marginTop: 4,
+    textAlign: 'center',
   },
   content: {
     padding: 20,

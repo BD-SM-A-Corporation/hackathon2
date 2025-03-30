@@ -317,7 +317,7 @@ export default function BedDetailsScreen() {
                 disabled={createMutation.isPending}
                 style={styles.button}
               >
-                <Text>Add Record</Text>
+                <Text style={{ color: 'white' }}>Add Record</Text>
               </Button>
             </BottomSheetView>
           </BottomSheetModal>
@@ -349,6 +349,10 @@ const styles = StyleSheet.create({
   segmentedButtons: {
     margin: 16,
   },
+  segmentedButtonsActive: {
+    backgroundColor: 'green',
+    color: 'white',
+  },
   list: {
     padding: 16,
   },
@@ -360,6 +364,8 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    backgroundColor: 'green',
+    color: 'white',
   },
   modal: {
     backgroundColor: 'white',
@@ -377,6 +383,9 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+    width: '100%',
+    backgroundColor: 'green',
+    color: 'white',
   },
   statsContainer: {
     flex: 1,

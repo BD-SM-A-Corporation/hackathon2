@@ -39,9 +39,9 @@ export default function LibraryScreen() {
         <Text variant="bodyMedium" numberOfLines={2}>
           {item.description}
         </Text>
-        <Text variant="bodySmall">
+        {/* <Text variant="bodySmall">
           Growing Time: {item.growingTime} days
-        </Text>
+        </Text> */}
       </Card.Content>
     </Card>
   );
@@ -99,17 +99,17 @@ export default function LibraryScreen() {
                     {selectedPlant.description}
                   </Text>
                   <View style={styles.modalDetails}>
-                    <Text variant="bodyMedium">
+                    {/* <Text variant="bodyMedium">
                       Growing Time: {selectedPlant.growingTime} days
-                    </Text>
-                    <Text variant="bodyMedium">
-                      {/* Temperature Range: {selectedPlant.temperature.min}°C - {selectedPlant.temperature.max}°C */}
+                    </Text> */}
+                    {/* <Text variant="bodyMedium">
+                      Temperature Range: {selectedPlant.temperature.min}°C - {selectedPlant.temperature.max}°C
                       20
                     </Text>
                     <Text variant="bodyMedium">
-                      {/* Moisture Range: {selectedPlant.moisture.min}% - {selectedPlant.moisture.max}% */}
+                      Moisture Range: {selectedPlant.moisture.min}% - {selectedPlant.moisture.max}%
                       20
-                    </Text>
+                    </Text> */}
                   </View>
                 </>
               )}
