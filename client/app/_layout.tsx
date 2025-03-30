@@ -1,4 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -37,23 +39,21 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      // Redirect to home if authenticated
       router.replace('/(app)/beds');
     }
   }, [user, loading, segments]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="(auth)"
-      />
-      <Stack.Screen
-        name="(app)"
-      />
-    </Stack>
+    <GluestackUIProvider mode="light"><Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="(auth)"
+        />
+        <Stack.Screen
+          name="(app)"
+        />
+      </Stack></GluestackUIProvider>
   );
 }
 
@@ -79,12 +79,12 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <PaperProvider>
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
-      </PaperProvider>
-    </QueryClientProvider>
+    <GluestackUIProvider mode="light"><QueryClientProvider client={queryClient}>
+        <PaperProvider>
+          <AuthProvider>
+            <RootLayoutNav />
+          </AuthProvider>
+        </PaperProvider>
+      </QueryClientProvider></GluestackUIProvider>
   );
 }

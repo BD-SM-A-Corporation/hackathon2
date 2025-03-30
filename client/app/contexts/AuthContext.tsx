@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(response.data.user);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.log('Auth check failed:', error);
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem('token', response.data.token);
       setUser(response.data.user);
     } catch (error) {
-      console.error('Login failed:', error);
+      console.log('Login failed:', error);
       throw error;
     }
   };
@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // After successful registration, automatically log in
       await login(email, password);
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.log('Registration failed:', error);
       throw error;
     }
   };
@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.removeItem('token');
       setUser(null);
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.log('Logout failed:', error);
       throw error;
     }
   };

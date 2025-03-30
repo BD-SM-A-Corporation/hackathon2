@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, TextInput, Button, Avatar, Portal, Modal } from 'react-native-paper';
+import React, { useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { Text, TextInput, Button, Avatar, Surface, IconButton } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { user } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function ProfileScreen() {
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState({
     name: '',
@@ -23,6 +33,7 @@ export default function ProfileScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       setIsEditing(false);
+      bottomSheetModalRef.current?.dismiss();
     },
   });
 
@@ -40,71 +51,111 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Avatar.Text
-          size={80}
-          label={profile?.data.name.slice(0, 2).toUpperCase() || 'U'}
-        />
-        <Text variant="headlineMedium" style={styles.name}>
-          {profile?.data.name}
-        </Text>
-        <Text variant="bodyLarge" style={styles.email}>
-          {profile?.data.email}
-        </Text>
-      </View>
-
-      <View style={styles.content}>
-        <Button
-          mode="outlined"
-          onPress={() => setIsEditing(true)}
-          style={styles.button}
-        >
-          Edit Profile
-        </Button>
-
-        <Button
-          mode="contained"
-          onPress={logout}
-          style={styles.button}
-        >
-          Logout
-        </Button>
-      </View>
-
-      <Portal>
-        <Modal
-          visible={isEditing}
-          onDismiss={() => setIsEditing(false)}
-          contentContainerStyle={styles.modal}
-        >
-          <Text variant="headlineSmall" style={styles.modalTitle}>
-            Edit Profile
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <Surface style={styles.header} elevation={4}>
+          <View style={styles.avatarContainer}>
+            <Avatar.Text
+              size={100}
+              label={profile?.data.name.slice(0, 2).toUpperCase() || 'U'}
+              style={styles.avatar}
+            />
+            <IconButton
+              icon="pencil"
+              size={20}
+              onPress={handlePresentModalPress}
+              style={styles.editButton}
+            />
+          </View>
+          <Text variant="headlineMedium" style={styles.name}>
+            {profile?.data.name}
           </Text>
+          <Text variant="bodyLarge" style={styles.email}>
+            {profile?.data.email}
+          </Text>
+        </Surface>
 
-          <TextInput
-            label="Name"
-            value={editedProfile.name}
-            onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
-            style={styles.input}
-          />
+        <View style={styles.statsContainer}>
+          <Surface style={styles.statCard} elevation={2}>
+            <Text variant="titleMedium" style={styles.statValue}>0</Text>
+            <Text variant="bodyMedium" style={styles.statLabel}>Active Beds</Text>
+          </Surface>
+          <Surface style={styles.statCard} elevation={2}>
+            <Text variant="titleMedium" style={styles.statValue}>0</Text>
+            <Text variant="bodyMedium" style={styles.statLabel}>Total Plants</Text>
+          </Surface>
+          <Surface style={styles.statCard} elevation={2}>
+            <Text variant="titleMedium" style={styles.statValue}>0</Text>
+            <Text variant="bodyMedium" style={styles.statLabel}>Harvests</Text>
+          </Surface>
+        </View>
 
+        <View style={styles.content}>
           <Button
             mode="contained"
-            onPress={handleUpdateProfile}
-            loading={updateMutation.isPending}
-            disabled={updateMutation.isPending}
-            style={styles.button}
+            onPress={logout}
+            style={styles.logoutButton}
+            icon="logout"
           >
-            Save Changes
+            Logout
           </Button>
-        </Modal>
-      </Portal>
-    </ScrollView>
+        </View>
+
+        <BottomSheetModalProvider>
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={['50%', '75%', '90%']}
+            index={0}
+            enablePanDownToClose
+            enableDynamicSizing
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                opacity={0.7}
+                pressBehavior="close"
+              />
+            )}
+          >
+            <BottomSheetView style={styles.contentContainer}>
+              <Text variant="headlineSmall" style={styles.modalTitle}>
+                Edit Profile
+              </Text>
+
+              <TextInput
+                label="Name"
+                value={editedProfile.name}
+                onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
+                style={styles.input}
+                mode="outlined"
+              />
+
+              <Button
+                mode="contained"
+                onPress={handleUpdateProfile}
+                loading={updateMutation.isPending}
+                disabled={updateMutation.isPending}
+                style={styles.button}
+                icon="content-save"
+              >
+                Save Changes
+              </Button>
+            </BottomSheetView>
+          </BottomSheetModal>
+        </BottomSheetModalProvider>
+      </ScrollView>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -113,11 +164,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: 'white',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 20,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  avatar: {
+    backgroundColor: '#6200ee',
+  },
+  editButton: {
+    position: 'absolute',
+    right: -10,
+    bottom: -10,
+    backgroundColor: '#6200ee',
   },
   name: {
-    marginTop: 16,
+    marginTop: 8,
+    fontWeight: 'bold',
   },
   email: {
+    color: '#666',
+    marginTop: 4,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  statCard: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    width: (Dimensions.get('window').width - 80) / 3,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#6200ee',
+  },
+  statLabel: {
     color: '#666',
     marginTop: 4,
   },
@@ -127,17 +216,16 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10,
   },
-  modal: {
-    backgroundColor: 'white',
-    padding: 20,
-    margin: 20,
-    borderRadius: 8,
-  },
   modalTitle: {
     marginBottom: 20,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   input: {
     marginBottom: 15,
+    width: '100%',
+  },
+  logoutButton: {
+    backgroundColor: '#ff3b30',
   },
 }); 

@@ -10,12 +10,13 @@ export default function AppLayout() {
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.outline,
+        headerShown: false
       }}
     >
       <Tabs.Screen
         name="beds"
         options={{
-          title: 'Beds',
+          title: '',
           tabBarIcon: ({ color, size }) => (
             <Icon name="sprout" size={size} color={color} />
           ),
@@ -24,7 +25,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="library/index"
         options={{
-          title: 'Library',
+          title: '',
           tabBarIcon: ({ color, size }) => (
             <Icon name="book-open-variant" size={size} color={color} />
           ),
@@ -33,7 +34,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="notifications/index"
         options={{
-          title: 'Notifications',
+          title: '',
           tabBarIcon: ({ color, size }) => (
             <Icon name="bell" size={size} color={color} />
           ),
@@ -42,7 +43,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="profile/index"
         options={{
-          title: 'Profile',
+          title: '',
           tabBarIcon: ({ color, size }) => (
             <Icon name="account" size={size} color={color} />
           ),

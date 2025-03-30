@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { Text, Card, FAB, Portal, Modal, TextInput, Button, SegmentedButtons } from 'react-native-paper';
+import { Text, Card, FAB, Button, SegmentedButtons } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { beds, records, Bed, Record, CreateRecordRequest } from '../../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger } from '@/components/ui/select';
+import { ChevronDownIcon } from '@/components/ui/icon';
+import { Input, InputField } from '@/components/ui/input';
+import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function BedDetailsScreen() {
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
   const params = useLocalSearchParams<{ id: string }>();
   const bedId = params.id;
   
@@ -84,7 +97,7 @@ export default function BedDetailsScreen() {
         <Text variant="titleMedium">{new Date(item.date).toLocaleDateString()}</Text>
         <Text variant="bodyMedium">Height: {item.height}cm</Text>
         <Text variant="bodyMedium">Humidity: {item.humidity}%</Text>
-        <Text variant="bodyMedium">Status: {item.visual_status}</Text>
+        <Select>Status: {item.visual_status}</Select>
         <Text variant="bodyMedium">Notes: {item.notes}</Text>
       </Card.Content>
     </Card>
@@ -177,121 +190,155 @@ export default function BedDetailsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Card style={styles.bedCard}>
-        <Card.Content>
-          <Text variant="headlineMedium">{bed.data.name}</Text>
-          <Text variant="bodyLarge">Plant: {bed.data.plant_type}</Text>
-          <Text variant="bodyMedium">Sowing Date: {new Date(bed.data.sowing_date).toLocaleDateString()}</Text>
-          <Text variant="bodyMedium">Substrate: {bed.data.substrate_type}</Text>
-          <Text variant="bodyMedium">Expected Harvest: {new Date(bed.data.expected_harvest).toLocaleDateString()}</Text>
-          <Text variant="bodyMedium">Status: {bed.data.status}</Text>
-          <Text variant="bodyMedium">Created: {new Date(bed.data.CreatedAt).toLocaleDateString()}</Text>
-          <Text variant="bodyMedium">Last Updated: {new Date(bed.data.UpdatedAt).toLocaleDateString()}</Text>
-        </Card.Content>
-      </Card>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Card style={styles.bedCard}>
+          <Card.Content>
+            <Text variant="headlineMedium">{bed.data.name}</Text>
+            <Text variant="bodyLarge">Plant: {bed.data.plant_type}</Text>
+            <Text variant="bodyMedium">Sowing Date: {new Date(bed.data.sowing_date).toLocaleDateString()}</Text>
+            <Text variant="bodyMedium">Substrate: {bed.data.substrate_type}</Text>
+            <Text variant="bodyMedium">Expected Harvest: {new Date(bed.data.expected_harvest).toLocaleDateString()}</Text>
+            <Text variant="bodyMedium">Status: {bed.data.status}</Text>
+            <Text variant="bodyMedium">Created: {new Date(bed.data.CreatedAt).toLocaleDateString()}</Text>
+            <Text variant="bodyMedium">Last Updated: {new Date(bed.data.UpdatedAt).toLocaleDateString()}</Text>
+          </Card.Content>
+        </Card>
 
-      <SegmentedButtons
-        value={viewMode}
-        onValueChange={value => setViewMode(value as 'records' | 'stats')}
-        buttons={[
-          { value: 'records', label: 'Records' },
-          { value: 'stats', label: 'Stats' },
-        ]}
-        style={styles.segmentedButtons}
-      />
-
-      {viewMode === 'records' ? (
-        <FlatList
-          data={recordsList?.data}
-          renderItem={renderRecord}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
+        <SegmentedButtons
+          value={viewMode}
+          onValueChange={value => setViewMode(value as 'records' | 'stats')}
+          buttons={[
+            { value: 'records', label: 'Records' },
+            { value: 'stats', label: 'Stats' },
+          ]}
+          style={styles.segmentedButtons}
         />
-      ) : (
-        renderStats()
-      )}
 
-      <Portal>
-        <Modal
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          contentContainerStyle={styles.modal}
-        >
-          <Text variant="headlineSmall" style={styles.modalTitle}>Add New Record</Text>
-          
-          <Button
-            mode="outlined"
-            onPress={() => setShowDate(true)}
-            style={styles.input}
+        {viewMode === 'records' ? (
+          <FlatList
+            data={recordsList?.data}
+            renderItem={renderRecord}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+          />
+        ) : (
+          renderStats()
+        )}
+
+        <BottomSheetModalProvider>
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={['50%', '60%', '75%', '90%']}
+            index={0}
+            enablePanDownToClose
+            enableDynamicSizing
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                opacity={0.7}
+                pressBehavior="close"
+              />
+            )}
           >
-            Date: {new Date(newRecord.date).toLocaleDateString()}
-          </Button>
+            <BottomSheetView style={styles.contentContainer}>
+              <Text variant="headlineSmall" style={styles.modalTitle}>Add New Record</Text>
+              
+              <Button
+                mode="outlined"
+                onPress={() => setShowDate(true)}
+                style={styles.input}
+              >
+                Date: {new Date(newRecord.date).toLocaleDateString()}
+              </Button>
 
-          <TextInput
-            label="Height (cm)"
-            value={newRecord.height.toString()}
-            onChangeText={(text) => setNewRecord({ ...newRecord, height: parseFloat(text) || 0 })}
-            keyboardType="numeric"
-            style={styles.input}
-          />
-          
-          <TextInput
-            label="Humidity (%)"
-            value={newRecord.humidity.toString()}
-            onChangeText={(text) => setNewRecord({ ...newRecord, humidity: parseFloat(text) || 0 })}
-            keyboardType="numeric"
-            style={styles.input}
-          />
-          
-          <TextInput
-            label="Visual Status"
-            value={newRecord.visual_status}
-            onChangeText={(text) => setNewRecord({ ...newRecord, visual_status: text })}
-            style={styles.input}
-          />
-          
-          <TextInput
-            label="Notes"
-            value={newRecord.notes}
-            onChangeText={(text) => setNewRecord({ ...newRecord, notes: text })}
-            multiline
-            numberOfLines={3}
-            style={styles.input}
-          />
+              <Input style={styles.input}>
+                <InputField placeholder="Height (cm)" 
+                  value={newRecord.height.toString()}
+                  onChangeText={(text) => setNewRecord({ ...newRecord, height: parseFloat(text) || 0 })}
+                  keyboardType='numeric'
+                />
+              </Input>
+              
+              <Input style={styles.input}>
+                <InputField placeholder="Humidity (%)" 
+                  onChangeText={(text) => setNewRecord({ ...newRecord, humidity: parseFloat(text) || 0 })}
+                  value={newRecord.humidity.toString()}
+                  keyboardType='numeric'
+                />
+              </Input>
+              
+              <Select style={styles.select} onValueChange={(value) => setNewRecord({...newRecord, visual_status: value })}>
+                <SelectTrigger>
+                  <SelectInput style={styles.selectInput} placeholder="Select option" className="flex-1"/>
+                  <SelectIcon className="mr-3" as={ChevronDownIcon} />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectBackdrop />
+                  <SelectContent>
+                    <SelectDragIndicatorWrapper>
+                      <SelectDragIndicator />
+                    </SelectDragIndicatorWrapper>
+                    <SelectItem label="Active" value="active" />
+                    <SelectItem label="Harvested" value="harvested" />
+                    <SelectItem label="Failed" value="failed" />
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+              
+              <Input style={styles.input}>
+                <InputField placeholder="Notes" 
+                  onChangeText={(text) => setNewRecord({ ...newRecord, notes: text })}
+                  value={newRecord.notes}
+                  multiline
+                  numberOfLines={3}
+                  keyboardType='numeric'
+                />
+              </Input>
 
-          {showDate && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={new Date(newRecord.date)}
-              mode="date"
-              is24Hour={true}
-              onChange={onDateChange}
-            />
-          )}
+              {showDate && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={new Date(newRecord.date)}
+                  mode="date"
+                  is24Hour={true}
+                  onChange={onDateChange}
+                  style={styles.input}
+                />
+              )}
 
-          <Button
-            mode="contained"
-            onPress={handleCreateRecord}
-            loading={createMutation.isPending}
-            disabled={createMutation.isPending}
-            style={styles.button}
-          >
-            Add Record
-          </Button>
-        </Modal>
-      </Portal>
+              <Button
+                mode="contained"
+                onPress={handleCreateRecord}
+                loading={createMutation.isPending}
+                disabled={createMutation.isPending}
+                style={styles.button}
+              >
+                Add Record
+              </Button>
+            </BottomSheetView>
+          </BottomSheetModal>
+        </BottomSheetModalProvider>
 
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => setVisible(true)}
-      />
-    </View>
+        <FAB
+          icon="plus"
+          style={styles.fab}
+          onPress={handlePresentModalPress}
+        />
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -317,7 +364,6 @@ const styles = StyleSheet.create({
   modal: {
     backgroundColor: 'white',
     padding: 20,
-    margin: 20,
     borderRadius: 8,
   },
   modalTitle: {
@@ -326,6 +372,8 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 15,
+    padding: 8,
+    width: '100%',
   },
   button: {
     marginTop: 10,
@@ -345,4 +393,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
+  select: {
+    marginBottom: 15,
+    width: '100%',
+  },
+  selectInput: {
+    padding: 8,
+  }
 }); 
