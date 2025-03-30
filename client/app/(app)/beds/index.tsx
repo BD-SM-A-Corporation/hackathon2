@@ -34,8 +34,6 @@ export default function BedsScreen() {
     queryFn: beds.getAll,
   });
 
-<<<<<<< Updated upstream
-=======
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: user.getProfile,
@@ -43,7 +41,6 @@ export default function BedsScreen() {
 
   console.log('Beds data:', bedsList?.data);
 
->>>>>>> Stashed changes
   const createMutation = useMutation({
     mutationFn: beds.create,
     onSuccess: () => {

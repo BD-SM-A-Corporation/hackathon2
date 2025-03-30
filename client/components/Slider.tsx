@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: SPACING,
     paddingVertical: 16,
+    marginBottom: 35,
   },
   card: {
     width: CARD_WIDTH,

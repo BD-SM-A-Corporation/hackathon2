@@ -1,1 +1,1 @@
-export const API_URL = 'http://192.168.182.61:8080'; // Replace 3000 with your API port 
+export const API_URL = 'http://192.168.251.33:8080'; // Replace 3000 with your API port 
