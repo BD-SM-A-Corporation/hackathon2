@@ -104,13 +104,24 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     marginBottom: 30,
+    color: "black",
   },
   input: {
     marginBottom: 15,
+    borderRadius: 24,
+    borderTopEndRadius: 24,
+    borderTopStartRadius: 24,
+    backgroundColor: "transparent",
+    borderColor: "black",
+    borderWidth: 1,
+    color: "#F9F9F9"
   },
   button: {
     marginTop: 10,
     marginBottom: 20,
+    padding: 8,
+    backgroundColor: "green",
+    color: "white",
   },
   error: {
     color: 'red',

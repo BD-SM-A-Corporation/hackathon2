@@ -52,100 +52,100 @@ export default function ProfileScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
-        <Surface style={styles.header} elevation={4}>
-          <View style={styles.avatarContainer}>
-            <Avatar.Text
-              size={100}
-              label={profile?.data.name.slice(0, 2).toUpperCase() || 'U'}
-              style={styles.avatar}
-            />
-            <IconButton
-              icon="pencil"
-              size={20}
-              onPress={handlePresentModalPress}
-              style={styles.editButton}
-            />
+      <BottomSheetModalProvider>
+        <ScrollView style={styles.container}>
+          <Surface style={styles.header} elevation={4}>
+            <View style={styles.avatarContainer}>
+              <Avatar.Text
+                size={100}
+                label={profile?.data.name.slice(0, 2).toUpperCase() || 'U'}
+                style={styles.avatar}
+              />
+              <IconButton
+                icon="pencil"
+                size={20}
+                onPress={handlePresentModalPress}
+                style={styles.editButton}
+              />
+            </View>
+            <Text variant="headlineMedium" style={styles.name}>
+              {profile?.data.name}
+            </Text>
+            <Text variant="bodyLarge" style={styles.email}>
+              {profile?.data.email}
+            </Text>
+          </Surface>
+
+          <View style={styles.statsContainer}>
+            <Surface style={styles.statCard} elevation={2}>
+              <Text variant="titleMedium" style={styles.statValue}>0</Text>
+              <Text variant="bodyMedium" style={styles.statLabel}>Active Beds</Text>
+            </Surface>
+            <Surface style={styles.statCard} elevation={2}>
+              <Text variant="titleMedium" style={styles.statValue}>0</Text>
+              <Text variant="bodyMedium" style={styles.statLabel}>Total Plants</Text>
+            </Surface>
+            <Surface style={styles.statCard} elevation={2}>
+              <Text variant="titleMedium" style={styles.statValue}>0</Text>
+              <Text variant="bodyMedium" style={styles.statLabel}>Harvests</Text>
+            </Surface>
           </View>
-          <Text variant="headlineMedium" style={styles.name}>
-            {profile?.data.name}
-          </Text>
-          <Text variant="bodyLarge" style={styles.email}>
-            {profile?.data.email}
-          </Text>
-        </Surface>
 
-        <View style={styles.statsContainer}>
-          <Surface style={styles.statCard} elevation={2}>
-            <Text variant="titleMedium" style={styles.statValue}>0</Text>
-            <Text variant="bodyMedium" style={styles.statLabel}>Active Beds</Text>
-          </Surface>
-          <Surface style={styles.statCard} elevation={2}>
-            <Text variant="titleMedium" style={styles.statValue}>0</Text>
-            <Text variant="bodyMedium" style={styles.statLabel}>Total Plants</Text>
-          </Surface>
-          <Surface style={styles.statCard} elevation={2}>
-            <Text variant="titleMedium" style={styles.statValue}>0</Text>
-            <Text variant="bodyMedium" style={styles.statLabel}>Harvests</Text>
-          </Surface>
-        </View>
+          <View style={styles.content}>
+            <Button
+              mode="contained"
+              onPress={logout}
+              style={styles.logoutButton}
+              icon="logout"
+            >
+              Logout
+            </Button>
+          </View>
+        </ScrollView>
 
-        <View style={styles.content}>
-          <Button
-            mode="contained"
-            onPress={logout}
-            style={styles.logoutButton}
-            icon="logout"
-          >
-            Logout
-          </Button>
-        </View>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          onChange={handleSheetChanges}
+          snapPoints={['50%']}
+          index={0}
+          enablePanDownToClose
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              opacity={0.7}
+              pressBehavior="close"
+            />
+          )}
+          style={styles.bottomSheet}
+        >
+          <BottomSheetView style={styles.contentContainer}>
+            <Text variant="headlineSmall" style={styles.modalTitle}>
+              Edit Profile
+            </Text>
 
-        <BottomSheetModalProvider>
-          <BottomSheetModal
-            ref={bottomSheetModalRef}
-            onChange={handleSheetChanges}
-            snapPoints={['50%', '75%', '90%']}
-            index={0}
-            enablePanDownToClose
-            enableDynamicSizing
-            backdropComponent={(props) => (
-              <BottomSheetBackdrop
-                {...props}
-                appearsOnIndex={0}
-                disappearsOnIndex={-1}
-                opacity={0.7}
-                pressBehavior="close"
-              />
-            )}
-          >
-            <BottomSheetView style={styles.contentContainer}>
-              <Text variant="headlineSmall" style={styles.modalTitle}>
-                Edit Profile
-              </Text>
+            <TextInput
+              label="Name"
+              value={editedProfile.name}
+              onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
+              style={styles.input}
+              mode="outlined"
+            />
 
-              <TextInput
-                label="Name"
-                value={editedProfile.name}
-                onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
-                style={styles.input}
-                mode="outlined"
-              />
-
-              <Button
-                mode="contained"
-                onPress={handleUpdateProfile}
-                loading={updateMutation.isPending}
-                disabled={updateMutation.isPending}
-                style={styles.button}
-                icon="content-save"
-              >
-                Save Changes
-              </Button>
-            </BottomSheetView>
-          </BottomSheetModal>
-        </BottomSheetModalProvider>
-      </ScrollView>
+            <Button
+              mode="contained"
+              onPress={handleUpdateProfile}
+              loading={updateMutation.isPending}
+              disabled={updateMutation.isPending}
+              style={styles.button}
+              icon="content-save"
+            >
+              Save Changes
+            </Button>
+          </BottomSheetView>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }
@@ -227,5 +227,15 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     backgroundColor: '#ff3b30',
+  },
+  bottomSheet: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 }); 
