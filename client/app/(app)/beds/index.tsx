@@ -3,10 +3,11 @@ import { View, StyleSheet, FlatList, Platform } from 'react-native';
 import { Text, Card, FAB, Button, TextInput } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { beds, Bed, CreateBedRequest } from '../../services/api';
+import { beds, Bed, CreateBedRequest, user } from '../../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Slider from '../../../components/Slider';
 
 export default function BedsScreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -33,6 +34,16 @@ export default function BedsScreen() {
     queryFn: beds.getAll,
   });
 
+<<<<<<< Updated upstream
+=======
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: user.getProfile,
+  });
+
+  console.log('Beds data:', bedsList?.data);
+
+>>>>>>> Stashed changes
   const createMutation = useMutation({
     mutationFn: beds.create,
     onSuccess: () => {
@@ -46,7 +57,7 @@ export default function BedsScreen() {
       });
     },
   });
-
+ 
   const handleCreateBed = () => {
     if (!newBed.name || !newBed.plant_type || !newBed.sowing_date || !newBed.substrate_type || !newBed.expected_harvest) {
       return;
@@ -92,6 +103,13 @@ export default function BedsScreen() {
     </Card>
   );
 
+  // Временные данные для слайдера
+  const dummyData = [1, 2, 3, 4];
+
+  const handleCardPress = (index: number) => {
+    console.log('Card pressed:', index);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -103,6 +121,14 @@ export default function BedsScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Hello,{'\n'}{profile?.data.name || 'User'}
+          </Text>
+        </View>
+
+        <Slider items={dummyData} onCardPress={handleCardPress} />
+
         <FlatList
           data={bedsList?.data}
           renderItem={renderBed}
@@ -233,5 +259,14 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+  },
+  header: {
+    padding: 24,
+    paddingTop: 48,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#2F3E46',
   },
 }); 
